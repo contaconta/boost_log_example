@@ -6,7 +6,7 @@
  *                 Copyright (c) 2013 ABEJA Inc. All rights reserved.
  * ******************************************************************** -8- */
 
-#include "../logger.hpp"
+#include "logger.hpp"
 
 void test_logging()
 {
