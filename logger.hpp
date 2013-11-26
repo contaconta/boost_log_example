@@ -45,7 +45,6 @@ enum severity_level
   FATAL
 };
 
-
 // The formatting logic for the severity level
 template< typename CharT, typename TraitsT >
 inline std::basic_ostream< CharT, TraitsT >& operator<< (
@@ -68,9 +67,18 @@ inline std::basic_ostream< CharT, TraitsT >& operator<< (
 }
 
 
+static inline void setLoggingLevel(logger::severity_level level)
+{
+  logging::core::get()->set_filter(
+    expr::attr< severity_level >("Severity") >= level
+  );
+}
+
+
 static inline void initLogging()
 {
   // set format for console output
+
   logging::add_console_log(
         std::clog,
         keywords::format = expr::format("time:%1%\ttrace:[%2%]\tlevel:%3%\tmessage:%4%")
@@ -79,6 +87,8 @@ static inline void initLogging()
       % expr::attr< severity_level >("Severity")
       % expr::message);
 
+#if 0
+// if you want to write logs to file,
   logging::add_file_log
       ("sample.log",
         keywords::format = expr::format("%1% [%2%] [%3%] <%4%> %5%")
@@ -87,13 +97,18 @@ static inline void initLogging()
       % expr::format_named_scope("Scope", keywords::format = "%n (%f:%l)")
       % expr::attr< severity_level >("Severity")
       % expr::message);
-
+#endif
   // Add some commonly used attributes, like timestamp and record counter.
   logging::add_common_attributes();
   logging::core::get()->add_thread_attribute("Scope", attrs::named_scope());
+#ifdef DEBUG
+  setLoggingLevel(TRACE);
+#endif
 }
 
 } // end of namespace
+
+
 
 
 BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(app_logger, boost::log::sources::severity_logger<logger::severity_level>)
